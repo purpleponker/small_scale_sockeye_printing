@@ -3,9 +3,7 @@ from tkinter import ttk
 from printing_logic import sendPrintRequest
 
 def on_print():
-    values = [e.get() for e in entries]
-    print("Values:", values)
-    sendPrintRequest(values)
+    sendPrintRequest(entries)
 
 root = tk.Tk()
 root.title("Label Printing")

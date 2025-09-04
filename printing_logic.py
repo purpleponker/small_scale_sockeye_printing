@@ -77,6 +77,6 @@ def sendPrintRequest(entries: list[tk.Entry]):
     try:
         response = requests.post(PRINTER_IP, json=payload, timeout=10)
         response.raise_for_status()
-        print("✅ Print request sent successfully:", response.text)
+        print("✅ Print request sent successfully:", response.status_code)
     except requests.RequestException as e:
         print("❌ Failed to send print request:", e)
