@@ -1,40 +1,53 @@
 import requests
 import datetime
-
+import tkinter as tk
+from tkinter import messagebox
 PRINTER_IP = "http://172.16.10.87:53230/print"  # replace with your actual endpoint
 
-def sendPrintRequest(entries: list[str]):
+def sendPrintRequest(entries: list[tk.Entry]):
     """
-    entries = [lot, tote_id, gross_weight, tare_weight, production_date]
+    entries = [lot_entry, tote_entry, gross_entry, tare_entry, prod_date_entry]
     """
 
-    lot, tote_id, gross_wgt, tare_wgt, prod_date = entries
+    # Grab raw values
+    lot = entries[0].get()
+    tote_id = entries[1].get()
+    gross_wgt = entries[2].get()
+    tare_wgt = entries[3].get()
+    prod_date = entries[4].get()
 
-    # convert numeric fields safely
+    # Validate numeric fields
     try:
         tote_id = int(tote_id)
     except ValueError:
-        tote_id = 0
+        messagebox.showerror("Invalid Data", "Tote ID must be a number.")
+        entries[1].delete(0, tk.END)
+        return
 
     try:
         gross_wgt = int(gross_wgt)
     except ValueError:
-        gross_wgt = 0
+        messagebox.showerror("Invalid Data", "Gross Weight must be a number.")
+        entries[2].delete(0, tk.END)
+        return
 
     try:
         tare_wgt = int(tare_wgt)
     except ValueError:
-        tare_wgt = 0
+        messagebox.showerror("Invalid Data", "Tare Weight must be a number.")
+        entries[3].delete(0, tk.END)
+        return
 
     net_wgt = gross_wgt - tare_wgt
 
-    # Use prod_date for both ProdDate and ExpDate (example: +1 year)
+    # Validate production date
     try:
         prod_dt = datetime.datetime.strptime(prod_date, "%Y-%m-%d")
-        exp_dt = prod_dt.replace(year=prod_dt.year + 1)
+        exp_dt = prod_dt.replace(year=prod_dt.year + 2)
     except ValueError:
-        prod_dt = datetime.datetime.today()
-        exp_dt = prod_dt.replace(year=prod_dt.year + 1)
+        messagebox.showerror("Invalid Data", "Production Date must be in YYYY-MM-DD format.")
+        entries[4].delete(0, tk.END)
+        return
 
     prod_time = prod_dt.strftime("%H:%M")
 
@@ -57,12 +70,12 @@ def sendPrintRequest(entries: list[str]):
             "ADEC": 15972,
             "FEI": 3031121070,
             "GearType": "Gillnet and Setnet",
-            "Barcode": f"NLHA{lot}09{net_wgt:04}{prod_dt.strftime('%y%m%d')}{tote_id:07}"
+            "Barcode": f"NLHA{lot}09{net_wgt:04}{prod_dt.strftime('%y%m%d')}{tote_id:06}"
         }
     }
 
     try:
-        response = requests.post(PRINTER_IP, json=payload, timeout=5)
+        response = requests.post(PRINTER_IP, json=payload, timeout=10)
         response.raise_for_status()
         print("✅ Print request sent successfully:", response.text)
     except requests.RequestException as e:
