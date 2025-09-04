@@ -2,6 +2,7 @@ import requests
 import datetime
 import tkinter as tk
 from tkinter import messagebox
+
 PRINTER_IP = "http://172.16.10.87:53230/print"  # replace with your actual endpoint
 
 def sendPrintRequest(entries: list[tk.Entry]):
@@ -77,6 +78,8 @@ def sendPrintRequest(entries: list[tk.Entry]):
     try:
         response = requests.post(PRINTER_IP, json=payload, timeout=10)
         response.raise_for_status()
-        print("✅ Print request sent successfully:", response.status_code)
+        print("✅ Print request sent successfully.")
+        return True
     except requests.RequestException as e:
         print("❌ Failed to send print request:", e)
+        return False

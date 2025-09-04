@@ -1,9 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
 from printing_logic import sendPrintRequest
+from csv_logic import export_print_data_to_csv
 
 def on_print():
-    sendPrintRequest(entries)
+    success = sendPrintRequest(entries)
+    if success:  # return True/False in your print logic
+        export_print_data_to_csv(entries)
 
 root = tk.Tk()
 root.title("Label Printing")
